@@ -1,5 +1,5 @@
-import { View, Text, Image , StyleSheet, TouchableOpacity, ScrollView, useWindowDimensions, Modal} from 'react-native'
-import React, { useState, useEffect } from 'react'
+import { View, Text, Image , StyleSheet, TouchableOpacity, ScrollView, useWindowDimensions, Modal, FlatList} from 'react-native'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import BackIcon from '../../assets/icons/back'
@@ -7,14 +7,23 @@ import CartIcon from '../../assets/icons/cart'
 import Animated, { FadeInLeft, FadeInRight } from 'react-native-reanimated'
 import Calendar from 'react-native-calendars/src/calendar'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { TouchableRipple } from 'react-native-paper'
 
 
 const ProductDetail = () => {
     const {params} = useRoute()
     const { goBack ,navigate} = useNavigation();
     const data = params?.data;
-    const {width}= useWindowDimensions();
-    const {height} =useWindowDimensions();
+    const {width, height}= useWindowDimensions();
+    const [selectedIndex, setSelectedIndex] =useState(0);
+    const [selectedImage, setSelectedImage] = useState(0);
+
+    const flatListRef = useRef();
+    useEffect(() => {
+      flatListRef.current?.scrollToIndex({ index: selectedImage, animated: true });
+    }, [selectedImage]);
+  
+
     const windowWidth = width;
     const windowHeight =height;
     const sizewidth = width ;
@@ -35,86 +44,13 @@ const ProductDetail = () => {
     const [showModal , setModel]= useState(false);
     const [selectedDates, setSelectedDates] = useState({});
 
-    // const handleDayPress = (day) => {
-    //   if (selectedDates.start && selectedDates.end) {
-    //     setSelectedDates({});
-    //   } else if (!selectedDates.start) {
-    //     setSelectedDates({ start: day.dateString });
-    //   } else {
-    //     setSelectedDates({ ...selectedDates, end: day.dateString });
-    //   }
-    // };
-
-    // const generateMarkedDates = () => {
-    //     const markedDates = {};
-    
-    //     if (selectedDates.start && selectedDates.end) {
-    //       const range = getDatesRange(selectedDates.start, selectedDates.end);
-          
-    //       range.forEach((date,index ) => {
-    //         const isStart = index === 0;
-    //       const isEnd = index === range.length - 1;
-    //         markedDates[date] = { color: 'green', 
-    //         textColor: 'white',
-    //         startingDay: isStart,
-    //         endingDay: isEnd,
-    //         containerStyle: {
-    //           borderRadius: isStart ? 10 : 0,
-    //           borderBottomLeftRadius: isStart ? 10 : 0,
-    //           borderTopLeftRadius: isStart ? 10 : 0,
-    //           borderBottomRightRadius: isEnd ? 10 : 0,
-    //           borderTopRightRadius: isEnd ? 10 : 0,
-    //         },
-    //     }
-    //       });
-    //     }
-    
-    //     return markedDates;
-    //   };
-    
-    //   const getDatesRange = (start, end) => {
-    //     const startDate = new Date(start);
-    //     const endDate = new Date(end);
-    //     const range = [];
-    
-    //     while (startDate <= endDate) {
-    //       range.push(startDate.toISOString().split('T')[0]);
-    //       startDate.setDate(startDate.getDate() + 1);
-    //     }
-    
-    //     return range;
-    //   };
-
-    //   const cartshop= async () =>{
-    //     const storedata= [data , selectedDates]
-    //         console.log('shop',storedata)
-    //     try {
-    //         await AsyncStorage.setItem("cart", JSON.stringify(storedata));
-    //       } catch (error) {
-    //         console.log(error);
-    //       }
-    //       navigate("ShopForm",{data:storedata})
-    //   }
-
-    //   const Shop = () => {
-    //     if (selectedDates.end){
-    //         const storedata= [data , selectedDates]
-    //         console.log('shop',storedata)
-    //         return (<TouchableOpacity className="bg-[#c2c530] w-[115px] p-4 items-center rounded-xl mx-auto mt-4 flex-row"  onPress={() =>cartshop()} >
-    //         <Text className="text-[18px] text-[#ffffff]">Shop</Text>
-    //         <View className="w-4 h-4 ml-2 mb-4">
-    //             <CartIcon   />
-    //         </View>
-    //        </TouchableOpacity>)
-    //     }
-    //     return null
-    //   }
+   
 
   return (
     <View style={styles.container}>
         <SafeAreaView />
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} >
-      <View style={styles.backgroundgrey} className="h-[450px]">
+      <View style={styles.backgroundgrey} className="h-[650px]">
         
         <View className="flex-row items-center justify-between py-4 px-4 ">
             <Animated.View entering={FadeInLeft.delay(50).duration(100) }>
@@ -122,68 +58,72 @@ const ProductDetail = () => {
                 <BackIcon />
             </TouchableOpacity>
             </Animated.View>
-            {/* <Animated.View entering={FadeInRight.delay(200).duration(500)} >
-            <TouchableOpacity style={styles.iconBack} className="bg-white h-12 w-14 items-center justify-center rounded-full">
-                <CartIcon />
-            </TouchableOpacity>
-            </Animated.View> */}
+
         </View>
+
         <View
-        className="flex h-[80%] w-full items-center justify-center " 
-        sharedTransitionTag={`T${data.id}`}
-        snapToInterval={sizewidth}
-        decelerationRate="fast"
-        >
-          <View >
-       
-            <Image
-              source={ imges }
-            />
-      </View>
-      
-            {/* <ScrollView
-                horizontal 
-                showHorizontalScrollIndicator={false}
-                bounces={false}
-                scrollEventThrottle={10}
-                snapToInterval={sizewidth}
-                decelerationRate="fast"
-                style={{height:'100%'}}
-            
-            >
-            {
-                data.thumbnail.map((item, index)=>{
-                    if(!item){
-                        return <View style={{width: '0%'}} key={index} />
-                    }
-                    return(
-                        <View style={{width:sizewidth }} key={index}>
-                            <View style={styles.imageContainer} className="mx-4" >
-                                <Image source={item} className="h-full " style={styles.imagess} />
-                            </View>
-                        </View>
-                    )
-                })
-            }
-            </ScrollView> */}
-            
+          style={{height:height/2}}>
+        <FlatList
+          ref={flatListRef}
+          pagingEnabled
+          horizontal
+          onScroll={e=> {
+            setSelectedIndex((e.nativeEvent.contentOffset.x /width).toFixed(0),)
+          }}
+          data={data.thumbnail}
+          showsHorizontalScrollIndicator={false}
+          renderItem={({item, index})=>{
+            return(
+              <Image
+              key={index}
+              source={item}
+              style={{width:width, height:height/2}} />
+            )
+          }} />
+          <View style={{width:width,
+            height:40,
+            position:'absolute',
+            bottom:0,
+            flexDirection:'row',
+            justifyContent:'center',
+            alignItems:'center'  
+        }}>
+          {
+            data.thumbnail.map((item, index)=>{
+              return(
+                <View style={{backgroundColor: selectedIndex == index ?'#8e8e8e': '#f2f2f2',
+                height:5,
+                width:30,
+                alignSelf:'center'}} key={index} className="rounded-xl">
+                    <View className="mx-4" >
+                    </View>
+                </View>
+            )
+            })
+          }
+        </View>
         </View>
         <View >
-        {data.thumbnail.map((image, i) => {
-           return(
-          <TouchableOpacity
-            key={i}
-            // style={[styles.img_wrap, indeximage === i && styles.active]}
-            onPress={() => hoverHandler(image, i)}
-          >
-            {console.log(data.thumbnail)}
-            <Image
-              source={image}
-            />
-          </TouchableOpacity>)
-})}
-        
-      </View>
+          <FlatList 
+          horizontal
+          data={data.thumbnail} 
+          renderItem={({item, index})=>{
+            return(
+              <TouchableOpacity 
+                style={{width:width/5, height:height/5, borderWidth:2, borderColor:'#fff'}} 
+                onPress={()=> {
+                  setSelectedIndex(index)
+                  setSelectedImage(index)
+                }}
+                className="rounded-lg mx-1"
+                >
+                <Image source={item} style={{width:'100%', height:'100%'}} />
+              </TouchableOpacity>
+            )
+          }}
+          className="mx-4 mt-2"
+          />
+        </View>
 
       </View>
       <View className="">
@@ -195,67 +135,25 @@ const ProductDetail = () => {
                 <Text className="text-[14px] font-light"> /day</Text>
             </Text>
         </View>
-
-        <View className="mx-auto">
-            <Text className="font-bold text-[24px] text-[#2a8943] mx-10">
-                {data.start}
-                    <Text className="text-[#24a8af]">➡</Text>
-                {data.end}
-            </Text>
-        </View>
-        <View className="">
-        <TouchableOpacity 
-        onPress={()=> setModel(true)}
+        <View className="fixed bottom-0 w-full">
+        <TouchableRipple
+        onPress={()=> {navigate("ShopForm",{data:data})}}
         style={{
-            borderRadius:10,
+            borderRadius:25,
             padding:10,
             width:200,
             alignItems:'center',
         }}
-        className="justify-center mx-auto bg-[#24a8af] mt-2 flex-row "
+        className="justify-center mx-auto bg-[#d4c659] mt-2 flex-row "
         >
-            <Text style={{color:'white', fontSize:22}}>Choose Period</Text>
-            <Image  className="w-8 h-8 ml-2" source={{uri:'https://img.icons8.com/color/48/calendar--v1.png'}} alt="calendar"/>
-        </TouchableOpacity>
+            <Text style={{color:'white', fontSize:22}} className="font-semibold">Order Request</Text>
+          
+        </TouchableRipple>
         </View>
-        {/* <Modal visible={showModal} animationType='fade' >
-            <Calendar
-            style={{borderRadius:10, elevation:4, margin:40}}
-            initialDate={data?.start}
-            minDate={data?.start}
-            maxDate={data?.end}
-            markingType="period" 
-            markedDates={{
-                [selectedDates.start]: { startingDay: true, color: 'green' },
-                [selectedDates.end]: { endingDay: true, color: 'green' },
-                ...generateMarkedDates(),
-              }}
-            onDayPress={handleDayPress}
-             />
-             <View className="flex-row justify-between mx-6">
-                <TouchableOpacity onPress={()=> setSelectedDates({})} >
-                    <Text className="text-lg m-4 mt-6 text-[#454040] ">Clear</Text>
-                </TouchableOpacity>
-             <TouchableOpacity 
-        onPress={()=> setModel(false)}
-        style={{
-            borderRadius:10,
-            margin:5,
-            padding:10,
-            width:120,
-            alignItems:'center',
-            justifyContent:'center',
-        }}
-        className="bg-[#24a8af]"
-        >
-            <Text style={{color:'white', fontSize:22}}>Done</Text>
-        </TouchableOpacity>
-        </View>
-        </Modal> */}
-
-        <Text className="my-6 mx-4 text-[#141313] text-[16px]">{data.description}</Text>
+        <Text className="my-6 mx-4 text-[#141313] text-[16px] text-justify">{data.description}</Text>
         
        
+
       </View>
       </ScrollView>
     </View>
@@ -269,8 +167,8 @@ const styles =StyleSheet.create({
         flex:1
     },
     backgroundgrey:{
-    borderBottomLeftRadius:50,
-    borderBottomRightRadius: 50,
+    borderBottomLeftRadius:25,
+    borderBottomRightRadius: 25,
     backgroundColor:"lightgrey",
     },
     iconBack:{
@@ -312,17 +210,5 @@ elevation: 14,
 
 
 
-      left_2: {
-        flex: 1,
-      },
-      grid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-      },
-      img_wrap: {
-        // your styles
-      },
-      active: {
-        // your active styles
-      },
+     
 })
