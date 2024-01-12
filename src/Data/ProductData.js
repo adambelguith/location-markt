@@ -7,8 +7,8 @@ export const productdata =[
     thumbnail: [require("../../assets/images/iphone1.jpg"),
     require("../../assets/images/iphone2.jpg")
         ],
-    start:"2024-1-1",
-    end:"2024-1-6"
+    start:"2024-1-5",
+    end:"2024-1-25"
 },
 {
     id:2,
@@ -75,5 +75,13 @@ export const productdata =[
     thumbnail: [require("../../assets/images/iphone2.jpg")],
     start:"2024-1-1",
     end:"2024-1-6"
+},{
+    id:8,
+    title:"addicted soprano matériel",
+    description:`945 addicted soprano matériel pour garage automobile`,
+    price : 15,
+    thumbnail: [require("../../assets/images/361.png"),require("../../assets/images/364.png")],
+    start:"2024-3-1",
+    end:"2024-3-25"
 },
 ]

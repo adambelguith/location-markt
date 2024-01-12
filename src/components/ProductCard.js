@@ -13,7 +13,7 @@ const ProductCard = (props) => {
         {item.price} 
         <Text className="text-[14px] font-light"> /day</Text>
       </Text>
-      <Text className="text-lg font-bold">{item.title.length > 25
+      <Text className="text-lg font-bold">{item.title.length > 15
           ? `${item.title.substring(0, 14)}...`
           : item.title}</Text>
     </View>
